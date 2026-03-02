@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beach Screensaver</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <div id="hint" aria-live="polite">Press <kbd>F</kbd> for fullscreen</div>
+  <div id="sound-controls">
+    <button type="button" id="sound-btn" aria-label="Toggle sound">Sound off</button>
+    <label id="volume-label" for="volume-slider" aria-label="Volume">Vol</label>
+    <input type="range" id="volume-slider" min="0" max="100" value="70" aria-label="Volume level">
+  </div>
+  <div id="yt-audio" aria-hidden="true"></div>
+  <script src="https://www.youtube.com/iframe_api" async></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/astroMath.js"></script>
+  <script src="/data/hipparcos_6.5_concise.js"></script>
+  <script src="/js/constellationData.js"></script>
+  <script src="/js/moonCratersData.js"></script>
+  <script src="/js/sky.js"></script>
+  <script src="/js/oceanMath.js"></script>
+  <script src="/js/oceanDataLoader.js"></script>
+  <script src="/js/oceanRenderer.js"></script>
+  <script src="/js/ocean.js"></script>
+  <script src="/js/sand.js"></script>
+  <script src="/js/seagulls.js"></script>
+  <script src="/js/sound.js"></script>
+  <script src="/js/scene.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

@@ -4,7 +4,7 @@ A relaxing, procedural beach screensaver in the browser.
 
 ![Shoreline screenshot](docs/shoreline-screenshot.jpg)
 
-Watch the waves roll in, the sun and moon cross the sky, and seagulls land and take off—all driven by a single Go binary with no external assets.
+Watch the waves roll in, the sun and moon cross the sky, and seagulls land and take off—all from a single Go binary. The scene itself uses no external assets; optional ambient audio streams from a YouTube livestream when you turn sound on.
 
 ## Features
 

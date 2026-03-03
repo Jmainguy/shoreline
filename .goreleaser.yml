@@ -1,0 +1,68 @@
+version: 2
+env:
+  - GO111MODULE=on
+
+dist: goreleaser-dist
+
+git:
+  ignore_tags:
+    - nightly
+
+snapshot:
+  version_template: "{{ .Tag }}-next"
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: shoreline
+    main: .
+    binary: shoreline
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+
+checksum:
+  name_template: 'checksums.txt'
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+kos:
+  -
+    main: .
+    working_dir: .
+    base_image: chainguard/wolfi-base
+    repositories:
+      - zot.soh.re/shoreline
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    tags:
+      - latest
+      - "{{.Tag}}"
+    creation_time: "{{.CommitTimestamp}}"
+    ko_data_creation_time: "{{.CommitTimestamp}}"
+    sbom: none
+    labels:
+      org.opencontainers.image.created: "{{.Date}}"
+      org.opencontainers.image.title: "Shoreline"
+      org.opencontainers.image.revision: "{{.FullCommit}}"
+      org.opencontainers.image.version: "{{.Version}}"
+      org.opencontainers.image.authors: "Jonathan Seth Mainguy <jon@soh.re>"
+      org.opencontainers.image.vendor: Harborvane
+      org.opencontainers.image.url: "https://github.com/jmainguy/shoreline"
+      org.opencontainers.image.source: "https://github.com/jmainguy/shoreline"
+      org.opencontainers.image.description: "Shoreline - A relaxing, procedural beach screensaver in the browser"
+      org.opencontainers.image.licenses: "GPL-2.0"
+    bare: true
+    preserve_import_paths: false
+    base_import_paths: true

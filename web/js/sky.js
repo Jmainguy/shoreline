@@ -140,8 +140,11 @@ const Sky = (function () {
    */
   function drawRealStars(ctx, time, width, horizonY, hourOfDay, lowMotion) {
     if (typeof AstroMath === 'undefined' || typeof HIP_STARS === 'undefined' || !HIP_STARS.length) return false;
-    const OBS_LAT = 35;
-    const OBS_LON = -79;
+    // Fort Lauderdale, Florida. The beach scene faces east over the Atlantic.
+    const OBS_LAT = 26.1224;
+    const OBS_LON = -80.1373;
+    const VIEW_AZIMUTH = 90;
+    const HORIZONTAL_FOV = 180;
     const msFromMidnight = hourOfDay * 3600 * 1000;
     const date = new Date(Date.UTC(2025, 0, 15, 0, 0, 0, 0) + msFromMidnight);
     const JD = AstroMath.dateToJD(date);
@@ -151,12 +154,11 @@ const Sky = (function () {
     HIP_STARS.forEach(function (star, i) {
       const aa = AstroMath.raDecToAltAz(star.ra, star.dec, OBS_LAT, lstDeg);
       if (aa.alt <= 0) return;
-      // Map hour angle directly so every star drifts in the same horizontal
-      // direction as sidereal time advances. Azimuth reverses close to the
-      // celestial pole when flattened into a 360-degree strip, which made the
-      // sky look like two layers rotating against one another.
-      const hourAngle = ((lstDeg - star.ra) % 360 + 360) % 360;
-      const x = (1 - hourAngle / 360) * width;
+      // Project one coherent 180-degree, east-facing hemisphere. Mixing hour
+      // angle on x with altitude on y creates an artificial oval boundary.
+      const azimuthDelta = ((aa.az - VIEW_AZIMUTH + 540) % 360) - 180;
+      if (Math.abs(azimuthDelta) > HORIZONTAL_FOV / 2) return;
+      const x = (azimuthDelta / HORIZONTAL_FOV + 0.5) * width;
       const y = horizonY * (1 - aa.alt / 90);
       const size = magnitudeToRadius(star.mag);
       const alpha = twinkle(i);
@@ -260,6 +262,13 @@ const Sky = (function () {
       const moonR = Math.min(width, height) * 0.06;
 
       ctx.globalAlpha = moonVis;
+      // Establish an opaque lunar body before translucent earthshine and
+      // phase lighting. Otherwise already-rendered stars show through it.
+      ctx.fillStyle = 'rgb(24, 30, 48)';
+      ctx.beginPath();
+      ctx.arc(moonX, moonY, moonR, 0, Math.PI * 2);
+      ctx.fill();
+
       // Phase: 0 = new, 0.5 = full. Tied to hourOfDay so phase advances smoothly through the 24h cycle.
       const phase = (hourOfDay / 24) % 1;
       const phaseAngle = phase * Math.PI * 2;

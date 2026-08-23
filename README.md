@@ -10,7 +10,7 @@ Watch the waves roll in, the sun and moon cross the sky, and seagulls land and t
 
 - **Day/night cycle** — 15 real-time minutes = 24 simulated hours. Smooth dawn and dusk with twilight colors.
 - **Sky** — Rayleigh and Mie atmospheric scattering, sun arc with limb darkening, moon with phase and terminator.
-- **Stars** — Hipparcos-based catalog (mag ≤ 6.5), positioned by RA/Dec and local sidereal time with consistent westward drift.
+- **Stars** — Hipparcos-based catalog (mag ≤ 6.5), projected from Fort Lauderdale coordinates toward the Atlantic using local sidereal time.
 - **Moon** — Phase, earthshine, and IAU-style lunar craters from embedded data.
 - **Ocean** — Analytic + Gerstner-style waves, Fresnel-style reflection, shore foam, offshore whitecaps, and crystalline crests.
 - **Beach** — Procedural sand texture that shifts with time of day.

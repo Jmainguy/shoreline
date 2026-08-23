@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/Jmainguy/shoreline/compare/v1.0.0...v1.0.1) (2026-08-23)
+
+
+### Bug Fixes
+
+* improve shoreline sky and audio ([cc7a2b7](https://github.com/Jmainguy/shoreline/commit/cc7a2b7b2e9346cd46976b86d326189c76d139c7))
+
 ## 1.0.0 (2026-03-03)
 
 

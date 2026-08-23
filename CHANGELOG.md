@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.2](https://github.com/Jmainguy/shoreline/compare/v1.0.1...v1.0.2) (2026-08-23)
+
+
+### Bug Fixes
+
+* correct Fort Lauderdale sky projection ([5e9bbd9](https://github.com/Jmainguy/shoreline/commit/5e9bbd9b96cd21a0bcd79b78b82f4994a07918bf))
+* publish project OCI annotations ([6951bb6](https://github.com/Jmainguy/shoreline/commit/6951bb6ded95232eab9c90d1c3bcef79dc44dee1))
+
 ## [1.0.1](https://github.com/Jmainguy/shoreline/compare/v1.0.0...v1.0.1) (2026-08-23)
 
 

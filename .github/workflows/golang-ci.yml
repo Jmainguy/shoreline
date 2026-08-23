@@ -1,65 +1,15 @@
-name: CI
+name: Golang CI
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
 
 jobs:
-  golangci-lint:
-    name: golangci-lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Set up Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: '1.26'
-          cache: false
-
-      - name: Install golangci-lint (binary)
-        run: |
-          curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.10.1
-          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
-
-      - name: Run golangci-lint
-        run: golangci-lint run --timeout=5m
-
-  lint-and-build:
-    name: Lint and build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Set up Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: '1.26'
-          cache: false
-
-      - name: Install staticcheck
-        run: go install honnef.co/go/tools/cmd/staticcheck@latest
-
-      - name: Add $GOPATH/bin to $PATH
-        run: echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
-
-      - name: Go fmt
-        run: |
-          FormatCheck=$(gofmt -l . | wc -l)
-          if [ $FormatCheck -gt 0 ]; then
-              gofmt -l .
-              echo "gofmt -w . your code please."
-              exit 1
-          fi
-
-      - name: Staticcheck
-        run: staticcheck ./...
-
-      - name: Go vet
-        run: go vet ./...
-
-      - name: Build Go binary
-        run: make build
+  golang-ci:
+    uses: Jmainguy/golang-workflows/.github/workflows/golang-ci.yml@v2.1.1
+    with:
+      docker: true

@@ -1,140 +1,144 @@
-// Stream audio from YouTube livestream (always-on). No procedural audio.
+// Stream ambient audio from YouTube. Playback remains opt-in, but the muted
+// player is prepared early so Chrome can honor the user's first click reliably.
 const Sound = (function () {
   "use strict";
-
   const LIVESTREAM_ID = "Thtj8Ht7Z_c";
   let player = null;
+  let playerReady = false;
   let muted = true;
-  let apiReady = false;
-  let volume = 70; // 0–100
+  let desiredMuted = true;
+  let volume = 70;
+  let apiPromise = null;
 
-  function applyVolume() {
-    if (player && player.setVolume) {
-      try {
-        player.setVolume(volume);
-      } catch (e) {}
-    }
-  }
-
-  function updateBtn() {
+  function updateBtn(message) {
     const btn = document.getElementById("sound-btn");
-    if (btn) {
-      btn.textContent = muted ? "Sound off" : "Sound on";
-      btn.setAttribute("aria-label", muted ? "Turn sound on" : "Turn sound off");
-    }
+    if (!btn) return;
+    btn.textContent = message || (!playerReady ? "Loading audio…" : (muted ? "Sound off" : "Sound on"));
+    btn.setAttribute("aria-label", muted ? "Turn sound on" : "Turn sound off");
+    btn.setAttribute("aria-pressed", String(!muted));
   }
 
-  function ensurePlayer(callback) {
-    if (player) {
-      if (callback) callback();
-      return;
-    }
-    const container = document.getElementById("yt-audio");
-    if (!container) {
-      if (callback) callback();
-      return;
-    }
-    if (!apiReady) {
-      if (callback) setTimeout(function () { ensurePlayer(callback); }, 100);
-      return;
-    }
-    player = new window.YT.Player("yt-audio", {
-      width: 1,
-      height: 1,
-      videoId: LIVESTREAM_ID,
-      playerVars: {
-        autoplay: 1,
-        mute: 1,
-        loop: 0,
-        controls: 0,
-        disablekb: 1,
-        fs: 0,
-        modestbranding: 1,
-        rel: 0,
-        showinfo: 0,
-        iv_load_policy: 3,
-        playsinline: 1,
-      },
-      events: {
-        onReady: function () {
-          if (player && player.mute) player.mute();
-          if (callback) callback();
-        },
-      },
+  function loadAPI() {
+    if (window.YT && window.YT.Player) return Promise.resolve();
+    if (apiPromise) return apiPromise;
+    apiPromise = new Promise(function (resolve, reject) {
+      const previousReady = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = function () {
+        if (typeof previousReady === "function") previousReady();
+        resolve();
+      };
+      const script = document.createElement("script");
+      script.src = "https://www.youtube.com/iframe_api";
+      script.async = true;
+      script.onerror = function () { reject(new Error("YouTube audio failed to load")); };
+      document.head.appendChild(script);
     });
+    return apiPromise;
   }
 
-  function setMute(m) {
-    muted = m;
-    if (!player || !player.mute || !player.unMute) return;
+  function applyState() {
+    if (!playerReady || !player) return;
     try {
-      if (muted) player.mute();
-      else {
-        applyVolume();
+      player.setVolume(volume);
+      if (desiredMuted) {
+        player.mute();
+      } else {
+        player.playVideo();
         player.unMute();
       }
-    } catch (e) {}
+      muted = desiredMuted;
+      updateBtn();
+    } catch (error) {
+      updateBtn("Sound unavailable");
+    }
+  }
+
+  function ensurePlayer() {
+    if (player) return Promise.resolve(player);
+    return loadAPI().then(function () {
+      return new Promise(function (resolve, reject) {
+        player = new window.YT.Player("yt-audio", {
+          width: 1,
+          height: 1,
+          videoId: LIVESTREAM_ID,
+          playerVars: {
+            autoplay: 1,
+            mute: 1,
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
+            rel: 0,
+            iv_load_policy: 3,
+            playsinline: 1,
+            origin: window.location.origin,
+          },
+          events: {
+            onReady: function (event) {
+              playerReady = true;
+              const button = document.getElementById("sound-btn");
+              if (button) button.disabled = false;
+              event.target.mute();
+              event.target.playVideo();
+              applyState();
+              resolve(player);
+            },
+            onError: function () {
+              playerReady = false;
+              const button = document.getElementById("sound-btn");
+              if (button) button.disabled = true;
+              updateBtn("Sound unavailable");
+              reject(new Error("YouTube audio is unavailable"));
+            },
+          },
+        });
+      });
+    });
+  }
+
+  function setMute(value) {
+    desiredMuted = Boolean(value);
+    muted = desiredMuted;
     updateBtn();
-  }
-
-  function toggleMute() {
-    muted = !muted;
-    ensurePlayer(function () {
-      setMute(muted);
+    return ensurePlayer().then(function () {
+      applyState();
+      return muted;
+    }).catch(function () {
+      muted = true;
+      desiredMuted = true;
+      updateBtn("Sound unavailable");
+      return muted;
     });
-    return muted;
   }
 
-  function isMuted() {
-    return muted;
-  }
-
+  function toggleMute() { return setMute(!desiredMuted); }
+  function isMuted() { return muted; }
   function start() {
-    ensurePlayer(function () {
-      if (player && player.playVideo) player.playVideo();
-      setMute(muted);
+    return ensurePlayer().then(applyState).catch(function () {
+      updateBtn("Sound unavailable");
     });
   }
-
-  window.onYouTubeIframeAPIReady = function () {
-    apiReady = true;
-  };
 
   const btn = document.getElementById("sound-btn");
   if (btn) {
     btn.addEventListener("click", function () {
-      ensurePlayer(function () {
-        start();
-        toggleMute();
-      });
+      updateBtn("Loading…");
+      toggleMute();
     });
   }
 
   const slider = document.getElementById("volume-slider");
   if (slider) {
     volume = Math.max(0, Math.min(100, Number(slider.value) || 70));
-    slider.value = volume;
     slider.addEventListener("input", function () {
       volume = Math.max(0, Math.min(100, Number(slider.value)));
-      applyVolume();
+      if (playerReady) player.setVolume(volume);
     });
   }
 
-  document.addEventListener("click", function once() {
-    ensurePlayer(function () {});
-    document.removeEventListener("click", once);
-  }, { once: true });
-  document.addEventListener("keydown", function once() {
-    ensurePlayer(function () {});
-    document.removeEventListener("keydown", once);
-  }, { once: true });
+  // Muted autoplay is permitted by Chrome and readies the player before use.
+  loadAPI().then(ensurePlayer).catch(function () {});
+  updateBtn();
 
-  window.Sound = {
-    start,
-    setMute,
-    toggleMute,
-    isMuted,
-    updateBtn,
-  };
-  return { start, setMute, toggleMute, isMuted, updateBtn };
+  window.Sound = { start, setMute, toggleMute, isMuted, updateBtn };
+  return window.Sound;
 })();

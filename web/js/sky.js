@@ -151,7 +151,12 @@ const Sky = (function () {
     HIP_STARS.forEach(function (star, i) {
       const aa = AstroMath.raDecToAltAz(star.ra, star.dec, OBS_LAT, lstDeg);
       if (aa.alt <= 0) return;
-      const x = (aa.az / 360) * width;
+      // Map hour angle directly so every star drifts in the same horizontal
+      // direction as sidereal time advances. Azimuth reverses close to the
+      // celestial pole when flattened into a 360-degree strip, which made the
+      // sky look like two layers rotating against one another.
+      const hourAngle = ((lstDeg - star.ra) % 360 + 360) % 360;
+      const x = (1 - hourAngle / 360) * width;
       const y = horizonY * (1 - aa.alt / 90);
       const size = magnitudeToRadius(star.mag);
       const alpha = twinkle(i);

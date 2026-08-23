@@ -11,10 +11,6 @@ git:
 snapshot:
   version_template: "{{ .Tag }}-next"
 
-before:
-  hooks:
-    - go mod tidy
-
 builds:
   - id: shoreline
     main: .
@@ -40,9 +36,9 @@ kos:
   -
     main: .
     working_dir: .
-    base_image: chainguard/wolfi-base
+    base_image: cgr.dev/chainguard/static@sha256:f68e3a8244c7d0f4cd56635aaff8e6a533cf6cc3850d8fb339567a5782d6a0b0
     repositories:
-      - zot.soh.re/shoreline
+      - zot.soh.re/jmainguy
     platforms:
       - linux/amd64
       - linux/arm64
@@ -58,11 +54,11 @@ kos:
       org.opencontainers.image.revision: "{{.FullCommit}}"
       org.opencontainers.image.version: "{{.Version}}"
       org.opencontainers.image.authors: "Jonathan Seth Mainguy <jon@soh.re>"
-      org.opencontainers.image.vendor: Harborvane
+      org.opencontainers.image.vendor: Jmainguy
       org.opencontainers.image.url: "https://github.com/jmainguy/shoreline"
       org.opencontainers.image.source: "https://github.com/jmainguy/shoreline"
       org.opencontainers.image.description: "Shoreline - A relaxing, procedural beach screensaver in the browser"
-      org.opencontainers.image.licenses: "GPL-2.0"
+      org.opencontainers.image.licenses: "GPL-2.0-only"
     bare: true
     preserve_import_paths: false
     base_import_paths: true

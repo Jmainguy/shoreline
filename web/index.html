@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0e1a">
   <title>Beach Screensaver</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <canvas id="canvas"></canvas>
   <div id="hint" aria-live="polite">Press <kbd>F</kbd> for fullscreen</div>
   <div id="sound-controls">
-    <button type="button" id="sound-btn" aria-label="Toggle sound">Sound off</button>
+    <button type="button" id="sound-btn" aria-label="Audio is loading" disabled>Loading audio…</button>
     <label id="volume-label" for="volume-slider" aria-label="Volume">Vol</label>
     <input type="range" id="volume-slider" min="0" max="100" value="70" aria-label="Volume level">
   </div>
   <div id="yt-audio" aria-hidden="true"></div>
-  <script src="https://www.youtube.com/iframe_api" async></script>
   <script src="/js/utils.js"></script>
   <script src="/js/astroMath.js"></script>
   <script src="/data/hipparcos_6.5_concise.js"></script>

@@ -2,6 +2,8 @@
 
 A relaxing, procedural beach screensaver in the browser.
 
+**[Watch the shoreline at shoreline.soh.re →](https://shoreline.soh.re/)**
+
 ![Shoreline screenshot](docs/shoreline-screenshot.jpg)
 
 Watch the waves roll in, the sun and moon cross the sky, and seagulls land and take off—all from a single Go binary. The scene itself uses no external assets; optional ambient audio streams from a YouTube livestream when you turn sound on.
